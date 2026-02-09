@@ -3,20 +3,12 @@ import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import { eq, and, isNull, gt } from "drizzle-orm";
 import { db } from "../../db/index.js";
-import {
-  users,
-  emailVerificationTokens,
-  passwordResetTokens,
-} from "../../db/schema.js";
+import { users, emailVerificationTokens, passwordResetTokens } from "../../db/schema.js";
 import { env } from "../../config/env.js";
 import { logger } from "../../lib/logger.js";
-import {
-  Conflict,
-  Unauthorized,
-  NotFound,
-  BadRequest,
-} from "../../lib/errors.js";
+import { Conflict, Unauthorized, NotFound, BadRequest } from "../../lib/errors.js";
 import type { AuthPayload } from "../../middleware/auth.js";
+import { sendVerificationEmail, sendPasswordResetEmail } from "../../lib/email.js";
 
 export async function signup(email: string, password: string) {
   const [existing] = await db
@@ -31,14 +23,11 @@ export async function signup(email: string, password: string) {
 
   const hashedPassword = await bcrypt.hash(password, env.BCRYPT_SALT_ROUNDS);
 
-  const [newUser] = await db
-    .insert(users)
-    .values({ email, password: hashedPassword })
-    .returning({
-      id: users.id,
-      email: users.email,
-      role: users.role,
-    });
+  const [newUser] = await db.insert(users).values({ email, password: hashedPassword }).returning({
+    id: users.id,
+    email: users.email,
+    role: users.role,
+  });
 
   const token = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
@@ -51,16 +40,14 @@ export async function signup(email: string, password: string) {
 
   logger.info({ userId: newUser.id }, "User registered");
 
-  // Phase 1: token returned in response (no email service yet)
-  return { user: newUser, verificationToken: token };
+  // Send verification email
+  await sendVerificationEmail(email, token);
+
+  return { user: newUser };
 }
 
 export async function login(email: string, password: string) {
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.email, email))
-    .limit(1);
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1);
 
   if (!user) {
     throw Unauthorized("Invalid credentials");
@@ -75,10 +62,7 @@ export async function login(email: string, password: string) {
     throw Unauthorized("Account deactivated");
   }
 
-  await db
-    .update(users)
-    .set({ lastLoginAt: new Date() })
-    .where(eq(users.id, user.id));
+  await db.update(users).set({ lastLoginAt: new Date() }).where(eq(users.id, user.id));
 
   const payload: AuthPayload = {
     userId: user.id,
@@ -111,8 +95,8 @@ export async function verifyEmail(token: string) {
       and(
         eq(emailVerificationTokens.token, token),
         isNull(emailVerificationTokens.usedAt),
-        gt(emailVerificationTokens.expiresAt, new Date())
-      )
+        gt(emailVerificationTokens.expiresAt, new Date()),
+      ),
     )
     .limit(1);
 
@@ -144,7 +128,9 @@ export async function forgotPassword(email: string) {
 
   if (!user) {
     // Don't reveal whether the email exists
-    return { message: "If an account exists, a reset token has been generated" };
+    return {
+      message: "If an account exists, a reset token has been generated",
+    };
   }
 
   const token = crypto.randomBytes(32).toString("hex");
@@ -173,8 +159,8 @@ export async function resetPassword(token: string, newPassword: string) {
       and(
         eq(passwordResetTokens.token, token),
         isNull(passwordResetTokens.usedAt),
-        gt(passwordResetTokens.expiresAt, new Date())
-      )
+        gt(passwordResetTokens.expiresAt, new Date()),
+      ),
     )
     .limit(1);
 
@@ -222,10 +208,7 @@ export async function getProfile(userId: string) {
   return user;
 }
 
-export async function updateProfile(
-  userId: string,
-  data: { email?: string; password?: string }
-) {
+export async function updateProfile(userId: string, data: { email?: string; password?: string }) {
   const updateData: Record<string, unknown> = { updatedAt: new Date() };
 
   if (data.email) {
@@ -243,10 +226,7 @@ export async function updateProfile(
   }
 
   if (data.password) {
-    updateData.password = await bcrypt.hash(
-      data.password,
-      env.BCRYPT_SALT_ROUNDS
-    );
+    updateData.password = await bcrypt.hash(data.password, env.BCRYPT_SALT_ROUNDS);
   }
 
   await db.update(users).set(updateData).where(eq(users.id, userId));

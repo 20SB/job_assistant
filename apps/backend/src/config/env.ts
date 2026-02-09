@@ -10,6 +10,13 @@ const envSchema = z.object({
     JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
     JWT_EXPIRES_IN: z.string().default("7d"),
     BCRYPT_SALT_ROUNDS: z.coerce.number().default(12),
+    // Email (optional - if not set, emails will be logged instead of sent)
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().optional(),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    EMAIL_FROM: z.string().email().optional(),
+    FRONTEND_URL: z.string().url().default("http://localhost:3000"),
 });
 
 const parsed = envSchema.safeParse(process.env);
