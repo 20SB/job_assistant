@@ -27,7 +27,7 @@ export function FAQ() {
             <div className="container mx-auto px-4 max-w-3xl">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-4xl mb-4">Frequently Asked Questions</h2>
-                    <p className="text-lg text-zinc-600 dark:text-zinc-400">Have a question? We're here to help.</p>
+                    <p className="text-lg text-zinc-600 dark:text-zinc-400">Have a question? We&apos;re here to help.</p>
                 </div>
 
                 <div className="space-y-6">

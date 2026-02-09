@@ -1,20 +1,21 @@
-import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
+import { env } from "../config/env.js";
+import { logger } from "../lib/logger.js";
+import * as schema from "./schema.js";
 
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL!,
+  connectionString: env.DATABASE_URL,
 });
 
 (async () => {
-    try {
-        const client = await pool.connect();
-        console.log("✅ PostgreSQL pool initial connection successful");
-        client.release();
-    } catch (err) {
-        console.error("❌ Error connecting to PostgreSQL pool:");
-    }
+  try {
+    const client = await pool.connect();
+    logger.info("PostgreSQL pool connected");
+    client.release();
+  } catch (err) {
+    logger.error({ err }, "Failed to connect to PostgreSQL pool");
+  }
 })();
 
-const postgreDb = drizzle({ client: pool });
-export default postgreDb;
+export const db = drizzle({ client: pool, schema });
