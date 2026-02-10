@@ -22,7 +22,7 @@ docs/
 | 6 | User Profile & CV Management   | Done         | `modules/cv/`                  |
 | 7 | Job Preferences                | Done         | `modules/preferences/`         |
 | 8 | Pricing & Subscription         | Done         | `modules/subscriptions/` + `middleware/require-subscription.ts` |
-| 9 | Job Ingestion (Adzuna API)     | Not started  | schema ready: `jobs`           |
+| 9 | Job Ingestion (Adzuna API)     | Done         | `modules/jobs/` + Adzuna client |
 | 10| Job Matching Engine            | Not started  | schema ready: `matchBatches`, `jobMatches` |
 | 11| Async Processing & Queues      | Not started  | schema ready: `taskQueue`      |
 | 12| CSV Generation                 | Not started  | schema ready: `csvExports`     |

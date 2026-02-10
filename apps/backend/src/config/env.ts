@@ -17,6 +17,11 @@ const envSchema = z.object({
     SMTP_PASS: z.string().optional(),
     EMAIL_FROM: z.string().email().optional(),
     FRONTEND_URL: z.string().url().default("http://localhost:3000"),
+    // Adzuna API (optional - job fetch disabled if not set)
+    ADZUNA_APP_ID: z.string().optional(),
+    ADZUNA_APP_KEY: z.string().optional(),
+    ADZUNA_BASE_URL: z.string().url().default("https://api.adzuna.com/v1/api"),
+    ADZUNA_COUNTRY: z.string().default("in"),
 });
 
 const parsed = envSchema.safeParse(process.env);

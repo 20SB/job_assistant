@@ -8,6 +8,7 @@ import userRouter from "./modules/users/user.routes.js";
 import cvRouter from "./modules/cv/cv.routes.js";
 import preferencesRouter from "./modules/preferences/preferences.routes.js";
 import subscriptionsRouter from "./modules/subscriptions/subscriptions.routes.js";
+import jobsRouter from "./modules/jobs/jobs.routes.js";
 import cors from "cors";
 
 // Side-effect import: establishes DB pool connection on startup
@@ -29,6 +30,7 @@ app.use("/api/users", userRouter);
 app.use("/api/cv", cvRouter);
 app.use("/api/preferences", preferencesRouter);
 app.use("/api/subscriptions", subscriptionsRouter);
+app.use("/api/jobs", jobsRouter);
 
 // Global error handler (must be AFTER all routes)
 app.use(errorHandler);

@@ -34,6 +34,7 @@ src/
     cv/                 → HLD §6: CV Management
     preferences/        → HLD §7: Job Preferences
     subscriptions/      → HLD §8: Plans, Subscriptions, Payments
+    jobs/               → HLD §9: Job Ingestion (Adzuna API)
 ```
 
 ## Module Pattern (4 files)
@@ -117,6 +118,7 @@ These are real issues encountered in this codebase — follow these patterns:
 | Express 5 `req.params.id` is `string \| string[]` | Cast: `req.params.id as string` |
 | `z.record()` needs 2 args in Zod 3.24 | `z.record(z.string(), z.unknown())` not `z.record(z.unknown())` |
 | Global Request augmentation for `req.user` | `declare global { namespace Express { interface Request { user?: AuthPayload } } }` in `middleware/auth.ts` |
+| Interface → JSONB cast | `raw as unknown as Record<string, unknown>` (double cast needed) |
 
 ## Environment Variables
 
@@ -136,6 +138,10 @@ Defined and validated in `config/env.ts`:
 | `SMTP_PASS` | No | — | |
 | `EMAIL_FROM` | No | — | |
 | `FRONTEND_URL` | No | `http://localhost:3000` | Used in email templates |
+| `ADZUNA_APP_ID` | No | — | If unset, job fetch returns empty |
+| `ADZUNA_APP_KEY` | No | — | Adzuna API key |
+| `ADZUNA_BASE_URL` | No | `https://api.adzuna.com/v1/api` | API base URL |
+| `ADZUNA_COUNTRY` | No | `in` | Country code for search |
 
 ## Local Development
 
