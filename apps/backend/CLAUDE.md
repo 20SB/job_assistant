@@ -35,6 +35,7 @@ src/
     preferences/        → HLD §7: Job Preferences
     subscriptions/      → HLD §8: Plans, Subscriptions, Payments
     jobs/               → HLD §9: Job Ingestion (Adzuna API)
+    matching/           → HLD §10: Job Matching Engine
 ```
 
 ## Module Pattern (4 files)
