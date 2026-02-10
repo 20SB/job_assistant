@@ -2,10 +2,16 @@ import nodemailer from "nodemailer";
 import { env } from "../config/env.js";
 import { logger } from "./logger.js";
 
+interface EmailAttachment {
+  filename: string;
+  content: Buffer;
+}
+
 interface EmailOptions {
   to: string;
   subject: string;
   html: string;
+  attachments?: EmailAttachment[];
 }
 
 const transporter = env.SMTP_HOST
@@ -25,7 +31,7 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
   if (!transporter) {
     // Dev mode: log email instead of sending
     logger.info(
-      { to: options.to, subject: options.subject },
+      { to: options.to, subject: options.subject, attachments: options.attachments?.length ?? 0 },
       "Email (not sent - no SMTP configured)",
     );
     logger.debug({ html: options.html }, "Email content");
@@ -37,6 +43,10 @@ export async function sendEmail(options: EmailOptions): Promise<void> {
     to: options.to,
     subject: options.subject,
     html: options.html,
+    attachments: options.attachments?.map((a) => ({
+      filename: a.filename,
+      content: a.content,
+    })),
   });
 
   logger.info({ to: options.to, subject: options.subject }, "Email sent");
@@ -72,5 +82,27 @@ export async function sendPasswordResetEmail(to: string, token: string): Promise
       <p>This link expires in 1 hour.</p>
       <p>If you didn't request this, you can safely ignore this email.</p>
     `,
+  });
+}
+
+export async function sendCsvEmail(
+  to: string,
+  fileName: string,
+  csvBuffer: Buffer,
+  totalRows: number,
+): Promise<void> {
+  await sendEmail({
+    to,
+    subject: `Your Job Matches CSV - ${totalRows} matches - Job Assistant`,
+    html: `
+      <h1>Your Job Matches Are Ready!</h1>
+      <p>We've found <strong>${totalRows}</strong> matching jobs for you.</p>
+      <p>Please find the CSV report attached: <strong>${fileName}</strong></p>
+      <p>Open the file in Excel or Google Sheets to browse your matches.</p>
+      <p>Each row includes the job title, company, location, salary, match percentage, and a direct apply link.</p>
+      <br/>
+      <p style="color: #666;">This is an automated email from Job Assistant.</p>
+    `,
+    attachments: [{ filename: fileName, content: csvBuffer }],
   });
 }

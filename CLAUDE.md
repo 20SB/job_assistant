@@ -25,7 +25,7 @@ docs/
 | 9 | Job Ingestion (Adzuna API)     | Done         | `modules/jobs/` + Adzuna client |
 | 10| Job Matching Engine            | Done         | `modules/matching/` + rule-based scorer |
 | 11| Async Processing & Queues      | Not started  | schema ready: `taskQueue`      |
-| 12| CSV Generation                 | Not started  | schema ready: `csvExports`     |
+| 12| CSV Generation                 | Done         | `modules/csv/` + email attachment support |
 | 13| Notification System            | Not started  | schema ready: `notifications`, `notificationPreferences` |
 | 14| Admin & Observability          | Not started  | schema ready: `jobFetchLogs`, `matchingLogs`, `emailDeliveryLogs` |
 
