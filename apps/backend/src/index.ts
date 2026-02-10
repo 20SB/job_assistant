@@ -7,6 +7,7 @@ import { errorHandler } from "./lib/error-handler.js";
 import userRouter from "./modules/users/user.routes.js";
 import cvRouter from "./modules/cv/cv.routes.js";
 import preferencesRouter from "./modules/preferences/preferences.routes.js";
+import subscriptionsRouter from "./modules/subscriptions/subscriptions.routes.js";
 import cors from "cors";
 
 // Side-effect import: establishes DB pool connection on startup
@@ -27,6 +28,7 @@ app.get("/health", (_req, res) => {
 app.use("/api/users", userRouter);
 app.use("/api/cv", cvRouter);
 app.use("/api/preferences", preferencesRouter);
+app.use("/api/subscriptions", subscriptionsRouter);
 
 // Global error handler (must be AFTER all routes)
 app.use(errorHandler);

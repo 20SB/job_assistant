@@ -27,11 +27,13 @@ src/
     validate.ts         → Zod validation middleware factory: `validate(schema)`
     email.ts            → Nodemailer transporter + email templates
   middleware/
-    auth.ts             → JWT `authenticate` middleware, augments `req.user`
+    auth.ts                 → JWT `authenticate` middleware, augments `req.user`
+    require-subscription.ts → Feature gating: `requireSubscription("starter")` etc.
   modules/
     users/              → HLD §5: Auth & User Management
     cv/                 → HLD §6: CV Management
     preferences/        → HLD §7: Job Preferences
+    subscriptions/      → HLD §8: Plans, Subscriptions, Payments
 ```
 
 ## Module Pattern (4 files)
