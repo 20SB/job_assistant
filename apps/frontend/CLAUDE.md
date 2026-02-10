@@ -16,6 +16,7 @@
 
 ```
 src/
+  middleware.ts              → Route protection (redirects unauthenticated users)
   app/
     layout.tsx              → Root layout (AuthProvider wraps entire app)
     page.tsx                → Landing page (public)
@@ -26,22 +27,28 @@ src/
       signup/page.tsx       → Signup form
       verify/page.tsx       → Email verification handler
     (dashboard)/            → Dashboard route group (protected)
-      layout.tsx            → Dashboard shell (header + nav)
-      dashboard/page.tsx    → Main dashboard (stats + job matches)
+      layout.tsx            → Dashboard shell (sidebar + header + mobile nav)
+      dashboard/page.tsx    → Main dashboard (dynamic stats + recent matches)
       onboarding/page.tsx   → 3-step onboarding wizard
+      cv/page.tsx           → CV management (view, edit, version history)
+      preferences/page.tsx  → Job preferences (view + edit form)
+      subscription/page.tsx → Subscription management (plans, cancel, payments)
+      jobs/page.tsx         → Job matches (filters, pagination, shortlist, details)
   components/
     ui/                     → Reusable UI primitives (button, card, input, label, badge)
     landing/                → Landing page sections (Navbar, Hero, HowItWorks, Pricing, FAQ, Footer)
   context/
-    AuthContext.tsx          → Auth state (user, token, login, signup, logout)
+    AuthContext.tsx          → Auth state (user, token, login, signup, logout) + cookie sync
   lib/
     utils.ts                → cn() helper (clsx + tailwind-merge)
     api/
       client.ts             → fetchApi<T>() base wrapper + ApiError class
-      auth.ts               → Auth API methods (signup, login, verifyEmail, etc.)
-      cv.ts                 → CV API (create, getActive)
-      preferences.ts        → Preferences API (create, get)
-      subscriptions.ts      → Subscriptions API (listPlans, subscribe, getMySubscription)
+      auth.ts               → Auth API (signup, login, verifyEmail, forgotPassword, resetPassword, getMe)
+      cv.ts                 → CV API (create, getActive, getById, getVersions, update, delete)
+      preferences.ts        → Preferences API (create, get, update, delete)
+      subscriptions.ts      → Subscriptions API (listPlans, getPlan, subscribe, getMySubscription, cancel, getPayments)
+      jobs.ts               → Jobs API (list with filters, getById, fetch from Adzuna)
+      matching.ts           → Matching API (run, getBatches, getBatchById, getResults, toggleShortlist, markViewed)
 ```
 
 ## HLD Section → Frontend Status
@@ -49,36 +56,38 @@ src/
 | # | HLD Section                    | Frontend Status | Pages / Components                   | Notes                                       |
 |---|--------------------------------|-----------------|--------------------------------------|---------------------------------------------|
 | 4 | Landing Page                   | Done            | `/` + `components/landing/*`         | Hero, HowItWorks, Pricing, FAQ, Footer      |
-| 5 | Auth & User Management         | Done            | `/login`, `/signup`, `/verify`       | AuthContext + localStorage token             |
-| 6 | CV Management                  | Partial         | `/onboarding` step 1                 | Text paste only; no dedicated CV page        |
-| 7 | Job Preferences                | Partial         | `/onboarding` step 2                 | Set during onboarding; no edit page          |
-| 8 | Pricing & Subscription         | Partial         | `/onboarding` step 3 + landing       | Plan selection; no manage/cancel page        |
+| 5 | Auth & User Management         | Done            | `/login`, `/signup`, `/verify`       | AuthContext + localStorage + cookie sync     |
+| 6 | CV Management                  | Done            | `/cv` + `/onboarding` step 1         | View, edit, version history, create          |
+| 7 | Job Preferences                | Done            | `/preferences` + `/onboarding` step 2| View mode, edit form, all fields exposed     |
+| 8 | Pricing & Subscription         | Done            | `/subscription` + `/onboarding` step 3| Current plan, change, cancel, payment history|
 | 9 | Job Ingestion                  | N/A (backend)   | —                                    | No frontend needed                          |
-| 10| Job Matching / Results         | Basic           | `/dashboard`                         | Shows match stats + job list; needs polish   |
+| 10| Job Matching / Results         | Done            | `/jobs` + `/dashboard`               | Filters, pagination, shortlist, score breakdown, job details |
 | 11| Async Processing               | Not started     | —                                    | No job status / queue UI yet                 |
 | 12| CSV Generation                 | Not started     | —                                    | No download/export UI yet                    |
 | 13| Notifications                  | Not started     | —                                    | No notification preferences UI yet           |
 | 14| Admin & Observability          | Not started     | —                                    | No admin dashboard yet                       |
 
-## What's Missing / TODO
+## What's Done
 
-### High Priority (core user flows)
-- [ ] **Route protection middleware** — `src/middleware.ts` to redirect unauthenticated users from `/dashboard/*` and `/onboarding/*`
-- [ ] **CV management page** — View active CV, update (create new snapshot), version history
-- [ ] **Preferences edit page** — View & update job preferences after onboarding
-- [ ] **Subscription management page** — View current plan, upgrade/downgrade, cancel, payment history
-- [ ] **Dashboard polish** — Better job match cards, filter/sort, pagination, shortlist toggle
+- [x] **Route protection middleware** — `src/middleware.ts` redirects unauthenticated → `/login`, authenticated → `/dashboard`
+- [x] **Dashboard layout** — Sidebar nav (desktop) + bottom nav (mobile) + dynamic header + user info + logout
+- [x] **Dashboard page** — Real-time stats from APIs, setup progress checklist, recent matches, run matching button
+- [x] **CV management page** — View active CV with meta cards, parsed skills/roles badges, edit/create, version history
+- [x] **Preferences page** — View mode with cards, full edit form (roles, locations, salary, experience, filters)
+- [x] **Subscription page** — Current plan card, change plan grid, cancel, payment history
+- [x] **Job matches page** — Filter by min%, shortlisted only, pagination, expandable job cards with score breakdown, shortlist toggle, mark viewed
+- [x] **API clients** — All 6 backend modules covered (auth, cv, preferences, subscriptions, jobs, matching)
 
-### Medium Priority (backend sections 11-13 frontend)
+## What's Remaining (backend sections 11-14)
+
+### Medium Priority
 - [ ] **CSV export UI** — Download button for matched jobs CSV on dashboard
 - [ ] **Notification preferences page** — Email frequency, notification channel settings
-- [ ] **Job detail view** — Expanded job card with full description, score breakdown, apply link
 
 ### Low Priority (section 14 + polish)
 - [ ] **Admin dashboard** — User list, subscription stats, job ingestion health, queue status
 - [ ] **Settings page** — Account settings, password change, delete account
 - [ ] **Dark mode toggle** — Tailwind dark class already supported, needs UI toggle
-- [ ] **Mobile responsive polish** — Landing page is responsive, dashboard needs work
 - [ ] **Loading skeletons** — Replace loading spinners with skeleton components
 - [ ] **Error boundaries** — Global error handling with fallback UI
 
@@ -92,28 +101,29 @@ fetchApi<T>(endpoint, options) → Promise<T>
   - Parses JSON, throws ApiError on non-ok response
 ```
 
-### Existing API clients
-| Client              | File                  | Backend Module     | Methods                                            |
-|---------------------|-----------------------|--------------------|----------------------------------------------------|
-| `authApi`           | `lib/api/auth.ts`     | `modules/users`    | signup, login, verifyEmail, forgotPassword, resetPassword, getMe |
-| `cvApi`             | `lib/api/cv.ts`       | `modules/cv`       | create, getActive                                  |
-| `preferencesApi`    | `lib/api/preferences.ts` | `modules/preferences` | create, get                                   |
-| `subscriptionsApi`  | `lib/api/subscriptions.ts` | `modules/subscriptions` | listPlans, subscribe, getMySubscription     |
+### API Clients
+| Client              | File                  | Backend Module       | Methods                                                          |
+|---------------------|-----------------------|----------------------|------------------------------------------------------------------|
+| `authApi`           | `lib/api/auth.ts`     | `modules/users`      | signup, login, verifyEmail, forgotPassword, resetPassword, getMe |
+| `cvApi`             | `lib/api/cv.ts`       | `modules/cv`         | create, getActive, getById, getVersions, update, delete          |
+| `preferencesApi`    | `lib/api/preferences.ts` | `modules/preferences` | create, get, update, delete                                  |
+| `subscriptionsApi`  | `lib/api/subscriptions.ts` | `modules/subscriptions` | listPlans, getPlan, subscribe, getMySubscription, cancel, getPayments |
+| `jobsApi`           | `lib/api/jobs.ts`     | `modules/jobs`       | list (with filters), getById, fetch (from Adzuna)                |
+| `matchingApi`       | `lib/api/matching.ts` | `modules/matching`   | run, getBatches, getBatchById, getResults, toggleShortlist, markViewed |
 
-### Missing API clients (need to add as backend modules are consumed)
-- [ ] `lib/api/jobs.ts` — Job listing, search, filters (backend exists)
-- [ ] `lib/api/matching.ts` — Match results, shortlist, viewed (backend exists)
-- [ ] `lib/api/csv.ts` — CSV export download (backend not started)
-- [ ] `lib/api/notifications.ts` — Notification preferences (backend not started)
+### Not yet needed (backend modules not started)
+- [ ] `lib/api/csv.ts` — CSV export download
+- [ ] `lib/api/notifications.ts` — Notification preferences
 
 ## Conventions
 
 - **"use client"** directive on all pages with interactivity (forms, state, effects)
 - **Route groups** — `(auth)` and `(dashboard)` for layout separation, no URL impact
 - **UI components** — shadcn pattern: Radix + Tailwind + CVA variants + `cn()` merge
-- **Forms** — React Hook Form + Zod resolver for validation
+- **Forms** — React Hook Form (+ Zod resolver where types are clean)
 - **Imports** — `@/` alias maps to `src/`
 - **Response parsing** — Expects `{ status: "success", data }` from backend
+- **Auth cookie sync** — AuthContext sets/clears cookie alongside localStorage for middleware access
 
 ## Environment Variables
 
