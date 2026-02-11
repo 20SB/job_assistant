@@ -8,6 +8,9 @@
         "build": "tsc",
         "start": "node dist/index.js",
         "lint": "eslint . --ext .ts",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
         "generate": "drizzle-kit generate",
         "migrate": "drizzle-kit migrate"
     },
@@ -36,9 +39,11 @@
         "@types/node": "^25.2.2",
         "@types/nodemailer": "^7.0.9",
         "@types/pg": "^8.16.0",
+        "@vitest/coverage-v8": "^4.0.18",
         "drizzle-kit": "^0.31.8",
         "nodemon": "^3.1.11",
         "tsx": "^4.21.0",
-        "typescript": "^5.9.3"
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.18"
     }
 }
