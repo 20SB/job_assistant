@@ -7,6 +7,7 @@ import {
 } from "../../db/schema.js";
 import { logger } from "../../lib/logger.js";
 import { NotFound, Conflict, BadRequest } from "../../lib/errors.js";
+import { notify } from "../notifications/notifications.service.js";
 
 // ── Plans ──────────────────────────────────────────────────────────────────
 
@@ -96,6 +97,29 @@ export async function subscribe(userId: string, planId: string) {
     { userId, planId, subscriptionId: subscription.id, planName: plan.name },
     "User subscribed",
   );
+
+  // Fire-and-forget notification
+  notify(userId, "subscription_renewal", {
+    subject: `Subscription Confirmed — ${plan.name.replace("_", " ")} plan`,
+    html: `
+      <h1>Welcome to the ${plan.name.replace("_", " ")} Plan!</h1>
+      <p>Your subscription is now active. Here's what you get:</p>
+      <ul>
+        <li>Job matching every <strong>${plan.matchFrequencyHours}</strong> hours</li>
+        <li>Up to <strong>${plan.emailLimitDaily}</strong> emails per day</li>
+      </ul>
+      <p>Head to your <a href="${process.env.FRONTEND_URL ?? "http://localhost:3000"}/dashboard">dashboard</a> to get started.</p>
+      <br/>
+      <p style="color: #666;">This is an automated email from Job Assistant.</p>
+    `,
+    metadata: {
+      planId,
+      planName: plan.name,
+      subscriptionId: subscription.id,
+    },
+  }).catch((err) => {
+    logger.error({ userId, planId, error: err }, "Failed to send subscription notification");
+  });
 
   return { subscription, plan };
 }

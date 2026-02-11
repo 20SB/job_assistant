@@ -10,6 +10,7 @@ import {
 import { logger } from "../../lib/logger.js";
 import { NotFound, BadRequest } from "../../lib/errors.js";
 import { scoreJob } from "./matching.scorer.js";
+import { notify } from "../notifications/notifications.service.js";
 
 type MatchTrigger = "new_job" | "cv_updated" | "preferences_updated" | "scheduled";
 
@@ -128,6 +129,27 @@ export async function runMatching(userId: string, trigger: MatchTrigger) {
     { userId, batchId: batch.id, totalJobsEvaluated: activeJobs.length, totalMatches },
     "Matching run completed",
   );
+
+  // Fire-and-forget notification — don't block the response
+  notify(userId, "match_batch", {
+    subject: `New Matches Found — ${totalMatches} jobs matched`,
+    html: `
+      <h1>Your Job Matching Is Complete!</h1>
+      <p>We evaluated <strong>${activeJobs.length}</strong> jobs and found <strong>${totalMatches}</strong> matches for you.</p>
+      <p>Head to your <a href="${process.env.FRONTEND_URL ?? "http://localhost:3000"}/jobs">dashboard</a> to view your results, or export them as a CSV.</p>
+      <br/>
+      <p style="color: #666;">This is an automated email from Job Assistant.</p>
+    `,
+    metadata: {
+      batchId: batch.id,
+      totalJobsEvaluated: activeJobs.length,
+      totalMatches,
+      trigger,
+    },
+    batchId: batch.id,
+  }).catch((err) => {
+    logger.error({ userId, batchId: batch.id, error: err }, "Failed to send match notification");
+  });
 
   return updatedBatch;
 }
