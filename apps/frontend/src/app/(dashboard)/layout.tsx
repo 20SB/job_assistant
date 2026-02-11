@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, FileText, Settings, CreditCard, Briefcase, Loader2, LogOut, User, FileSpreadsheet, Bell, Shield } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, CreditCard, Briefcase, Loader2, LogOut, User, FileSpreadsheet, Bell, Shield, UserCog } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const baseNavItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -13,6 +14,7 @@ const baseNavItems = [
     { href: "/cv", label: "My CV", icon: FileText },
     { href: "/preferences", label: "Preferences", icon: Settings },
     { href: "/subscription", label: "Subscription", icon: CreditCard },
+    { href: "/settings", label: "Settings", icon: UserCog },
 ];
 
 const adminNavItem = { href: "/admin", label: "Admin", icon: Shield };
@@ -98,6 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </h1>
                     </div>
                     <div className="flex items-center gap-3">
+                        <ThemeToggle />
                         <span className="hidden sm:block text-sm text-zinc-500 dark:text-zinc-400">{user?.email}</span>
                         <button
                             onClick={handleLogout}

@@ -71,4 +71,11 @@ export const authApi = {
             method: "GET",
             token,
         }),
+
+    updateProfile: (data: { email?: string; password?: string }, token: string) =>
+        fetchApi<GetMeResponse>("/api/users/me", {
+            method: "PATCH",
+            body: JSON.stringify(data),
+            token,
+        }),
 };

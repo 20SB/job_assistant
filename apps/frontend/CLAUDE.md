@@ -37,9 +37,13 @@ src/
       exports/page.tsx      → CSV exports (generate, download, archive)
       notifications/page.tsx → Notifications (preferences CRUD, notification history)
       admin/page.tsx        → Admin dashboard (stats, users, logs, tasks)
+      settings/page.tsx     → Account settings (email update, password change)
   components/
-    ui/                     → Reusable UI primitives (button, card, input, label, badge)
+    ui/                     → Reusable UI primitives (button, card, input, label, badge, skeleton)
     landing/                → Landing page sections (Navbar, Hero, HowItWorks, Pricing, FAQ, Footer)
+    skeletons.tsx           → Loading skeleton components (card, table, form, job card, stat card)
+    theme-toggle.tsx        → Dark mode toggle button
+    error-boundary.tsx      → React error boundary with fallback UI
   context/
     AuthContext.tsx          → Auth state (user, token, login, signup, logout) + cookie sync
   lib/
@@ -86,16 +90,28 @@ src/
 - [x] **Dashboard CSV section** — Quick access to recent exports and generate button
 - [x] **Notifications page** — Preferences management (frequency, opt-in toggles), notification history with type filters
 - [x] **Admin dashboard** — 6 tabs (overview, users, job-fetch logs, matching logs, email logs, tasks), stats, filters, pagination
+- [x] **Settings page** — Email update, password change, account info display
+- [x] **Toast notifications** — Sonner integration for success/error messages
+- [x] **Dark mode toggle** — Theme switcher in header with localStorage persistence
+- [x] **Loading skeletons** — Reusable skeleton components for better loading UX
+- [x] **Error boundaries** — Global error catching with fallback UI
 - [x] **API clients** — All 9 backend modules covered (auth, cv, preferences, subscriptions, jobs, matching, csv, notifications, admin)
 
-## What's Remaining
+## Polish Features Complete
 
-### Optional Polish
-- [ ] **Settings page** — Account settings, password change, delete account
-- [ ] **Dark mode toggle** — Tailwind dark class already supported, needs UI toggle
-- [ ] **Loading skeletons** — Replace loading spinners with skeleton components
-- [ ] **Error boundaries** — Global error handling with fallback UI
-- [ ] **Toast notifications** — Replace inline alerts with toast system
+All planned polish features have been implemented:
+- ✅ **Settings page** — Account settings, email/password update (deletion requires backend endpoint)
+- ✅ **Dark mode toggle** — Theme switcher in header with localStorage
+- ✅ **Loading skeletons** — 5 reusable skeleton components available
+- ✅ **Error boundaries** — Global error boundary in root layout
+- ✅ **Toast notifications** — Sonner integrated throughout app
+
+## Optional Future Enhancements
+- [ ] **Replace inline alerts with toasts** — Update existing pages to use toast() instead of inline error/success divs
+- [ ] **Add more skeleton variations** — Create page-specific loading states
+- [ ] **Account deletion** — Requires backend DELETE /api/users/me endpoint
+- [ ] **User avatar uploads** — Profile picture management
+- [ ] **Keyboard shortcuts** — Add hotkeys for common actions
 
 ## API Client Layer
 
