@@ -17,7 +17,8 @@
       "Bash(git push:*)",
       "Bash(for dir in admin auth cv dashboard exports jobs notifications preferences settings subscription)",
       "Bash(do rm -rf \"$dir/utils\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(git commit:*)"
     ]
   }
 }
