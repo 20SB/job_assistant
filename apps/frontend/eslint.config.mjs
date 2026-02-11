@@ -13,6 +13,27 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Module boundary enforcement rules
+  {
+    rules: {
+      // Prevent cross-module imports
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/modules/*/!(index)'],
+              message: 'Import from module public API only (index.ts). Use: @/modules/[name]',
+            },
+            {
+              group: ['../**/modules/*'],
+              message: 'Do not use relative imports for modules. Use: @/modules/[name]',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ]);
 
 export default eslintConfig;
