@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { subscriptionsApi, Subscription } from "@/lib/api/subscriptions";
-import { matchingApi, MatchResult } from "@/lib/api/matching";
+import { matchingApi, MatchResult, MatchBatch } from "@/lib/api/matching";
 import { cvApi } from "@/lib/api/cv";
 import { preferencesApi } from "@/lib/api/preferences";
+import { csvApi, CsvExport } from "@/lib/api/csv";
 import {
   Loader2,
   Briefcase,
@@ -23,6 +24,8 @@ import {
   Building2,
   CheckCircle,
   Settings,
+  Download,
+  FileSpreadsheet,
 } from "lucide-react";
 
 interface DashboardData {
@@ -32,6 +35,8 @@ interface DashboardData {
   shortlistedCount: number;
   hasCv: boolean;
   hasPreferences: boolean;
+  recentExports: CsvExport[];
+  recentBatches: MatchBatch[];
 }
 
 export default function DashboardPage() {
@@ -43,10 +48,14 @@ export default function DashboardPage() {
     shortlistedCount: 0,
     hasCv: false,
     hasPreferences: false,
+    recentExports: [],
+    recentBatches: [],
   });
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
+  const [generatingCsv, setGeneratingCsv] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [csvSuccess, setCsvSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -64,16 +73,21 @@ export default function DashboardPage() {
       shortlistedCount: 0,
       hasCv: false,
       hasPreferences: false,
+      recentExports: [],
+      recentBatches: [],
     };
 
     try {
-      const [subRes, matchRes, shortlistRes, cvRes, prefRes] = await Promise.allSettled([
-        subscriptionsApi.getMySubscription(token!),
-        matchingApi.getResults({ page: 1, limit: 5 }, token!),
-        matchingApi.getResults({ page: 1, limit: 1, shortlistedOnly: "true" }, token!),
-        cvApi.getActive(token!),
-        preferencesApi.get(token!),
-      ]);
+      const [subRes, matchRes, shortlistRes, cvRes, prefRes, exportsRes, batchesRes] =
+        await Promise.allSettled([
+          subscriptionsApi.getMySubscription(token!),
+          matchingApi.getResults({ page: 1, limit: 5 }, token!),
+          matchingApi.getResults({ page: 1, limit: 1, shortlistedOnly: "true" }, token!),
+          cvApi.getActive(token!),
+          preferencesApi.get(token!),
+          csvApi.listExports(1, 3, token!),
+          matchingApi.getBatches(token!),
+        ]);
 
       if (subRes.status === "fulfilled") results.subscription = subRes.value.data;
       if (matchRes.status === "fulfilled") {
@@ -84,6 +98,10 @@ export default function DashboardPage() {
         results.shortlistedCount = shortlistRes.value.data.total;
       if (cvRes.status === "fulfilled") results.hasCv = true;
       if (prefRes.status === "fulfilled") results.hasPreferences = true;
+      if (exportsRes.status === "fulfilled")
+        results.recentExports = exportsRes.value.data.exports;
+      if (batchesRes.status === "fulfilled")
+        results.recentBatches = batchesRes.value.data.slice(0, 5);
 
       setData(results);
     } catch {
@@ -103,6 +121,37 @@ export default function DashboardPage() {
       setError("Failed to run matching. Make sure you have a CV and preferences set up.");
     } finally {
       setRunning(false);
+    }
+  };
+
+  const handleGenerateCsv = async (batchId: string) => {
+    setGeneratingCsv(true);
+    setError(null);
+    setCsvSuccess(null);
+    try {
+      const result = await csvApi.generate({ batchId }, token!);
+      setCsvSuccess(result.data.message);
+      setTimeout(() => loadDashboard(), 2000); // Reload after 2s to show new export
+    } catch (err: any) {
+      setError(err.message || "Failed to generate CSV");
+    } finally {
+      setGeneratingCsv(false);
+    }
+  };
+
+  const handleDownloadCsv = async (exportId: string, fileName: string) => {
+    try {
+      const blob = await csvApi.download(exportId, token!);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      setError(err.message || "Failed to download CSV");
     }
   };
 
@@ -155,6 +204,13 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/20 dark:text-red-400">
           <AlertCircle className="h-4 w-4 flex-shrink-0" />
           {error}
+        </div>
+      )}
+
+      {csvSuccess && (
+        <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-600 dark:bg-green-950/20 dark:text-green-400">
+          <CheckCircle className="h-4 w-4 flex-shrink-0" />
+          {csvSuccess}
         </div>
       )}
 
@@ -331,6 +387,113 @@ export default function DashboardPage() {
                   </div>
                 </Link>
               ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* CSV Exports */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>CSV Exports</CardTitle>
+            <CardDescription>Download your job matches as CSV files.</CardDescription>
+          </div>
+          {data.recentExports?.length > 0 && (
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/exports">
+                View All <ArrowRight className="h-4 w-4 ml-1" />
+              </Link>
+            </Button>
+          )}
+        </CardHeader>
+        <CardContent>
+          {data.recentBatches?.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <FileSpreadsheet className="h-10 w-10 text-zinc-300 dark:text-zinc-600 mb-3" />
+              <p className="text-sm text-zinc-500 mb-1">No match batches available.</p>
+              <p className="text-xs text-zinc-400">Run matching first to generate CSV exports.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {data.recentExports?.length > 0 ? (
+                <>
+                  {data.recentExports.map((exp) => (
+                    <div
+                      key={exp.id}
+                      className="flex items-center justify-between rounded-lg border border-zinc-100 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950/50"
+                    >
+                      <div className="space-y-1 min-w-0 flex-1">
+                        <h3 className="font-semibold leading-none text-zinc-900 dark:text-zinc-100 truncate">
+                          {exp.fileName}
+                        </h3>
+                        <div className="flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
+                          <span>{exp.totalRows} rows</span>
+                          <span>•</span>
+                          <span>{new Date(exp.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDownloadCsv(exp.id, exp.fileName)}
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                  ))}
+                  {data.recentBatches?.[0] && (
+                    <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => handleGenerateCsv(data.recentBatches[0].batchId)}
+                        disabled={generatingCsv}
+                      >
+                        {generatingCsv ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Generating...
+                          </>
+                        ) : (
+                          <>
+                            <FileSpreadsheet className="h-4 w-4 mr-2" />
+                            Generate New CSV
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <FileSpreadsheet className="h-10 w-10 text-zinc-300 dark:text-zinc-600 mb-3" />
+                    <p className="text-sm text-zinc-500 mb-3">No CSV exports yet.</p>
+                  </div>
+                  {data.recentBatches?.[0] && (
+                    <Button
+                      size="sm"
+                      className="w-full"
+                      onClick={() => handleGenerateCsv(data.recentBatches[0].batchId)}
+                      disabled={generatingCsv}
+                    >
+                      {generatingCsv ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <FileSpreadsheet className="h-4 w-4 mr-2" />
+                          Generate First CSV
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </CardContent>

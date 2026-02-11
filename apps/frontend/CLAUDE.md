@@ -34,6 +34,9 @@ src/
       preferences/page.tsx  → Job preferences (view + edit form)
       subscription/page.tsx → Subscription management (plans, cancel, payments)
       jobs/page.tsx         → Job matches (filters, pagination, shortlist, details)
+      exports/page.tsx      → CSV exports (generate, download, archive)
+      notifications/page.tsx → Notifications (preferences CRUD, notification history)
+      admin/page.tsx        → Admin dashboard (stats, users, logs, tasks)
   components/
     ui/                     → Reusable UI primitives (button, card, input, label, badge)
     landing/                → Landing page sections (Navbar, Hero, HowItWorks, Pricing, FAQ, Footer)
@@ -49,6 +52,9 @@ src/
       subscriptions.ts      → Subscriptions API (listPlans, getPlan, subscribe, getMySubscription, cancel, getPayments)
       jobs.ts               → Jobs API (list with filters, getById, fetch from Adzuna)
       matching.ts           → Matching API (run, getBatches, getBatchById, getResults, toggleShortlist, markViewed)
+      csv.ts                → CSV API (generate, listExports, download, archive)
+      notifications.ts      → Notifications API (preferences CRUD, list notifications, get notification)
+      admin.ts              → Admin API (stats, users, job-fetch logs, matching logs, email logs, task queue)
 ```
 
 ## HLD Section → Frontend Status
@@ -62,10 +68,10 @@ src/
 | 8 | Pricing & Subscription         | Done            | `/subscription` + `/onboarding` step 3| Current plan, change, cancel, payment history|
 | 9 | Job Ingestion                  | N/A (backend)   | —                                    | No frontend needed                          |
 | 10| Job Matching / Results         | Done            | `/jobs` + `/dashboard`               | Filters, pagination, shortlist, score breakdown, job details |
-| 11| Async Processing               | Not started     | —                                    | No job status / queue UI yet                 |
-| 12| CSV Generation                 | Not started     | —                                    | No download/export UI yet                    |
-| 13| Notifications                  | Not started     | —                                    | No notification preferences UI yet           |
-| 14| Admin & Observability          | Not started     | —                                    | No admin dashboard yet                       |
+| 11| Async Processing               | Done (backend)  | Task queue visible in admin          | Task monitoring via admin dashboard          |
+| 12| CSV Generation                 | Done            | `/exports` + dashboard section       | Generate, download, archive CSV exports      |
+| 13| Notifications                  | Done            | `/notifications`                     | Preferences CRUD, notification history, email status tracking |
+| 14| Admin & Observability          | Done            | `/admin`                             | Stats, users, logs, task queue (admin only)  |
 
 ## What's Done
 
@@ -76,20 +82,20 @@ src/
 - [x] **Preferences page** — View mode with cards, full edit form (roles, locations, salary, experience, filters)
 - [x] **Subscription page** — Current plan card, change plan grid, cancel, payment history
 - [x] **Job matches page** — Filter by min%, shortlisted only, pagination, expandable job cards with score breakdown, shortlist toggle, mark viewed
-- [x] **API clients** — All 6 backend modules covered (auth, cv, preferences, subscriptions, jobs, matching)
+- [x] **CSV exports page** — Generate CSV from match batches, download, archive, view export history
+- [x] **Dashboard CSV section** — Quick access to recent exports and generate button
+- [x] **Notifications page** — Preferences management (frequency, opt-in toggles), notification history with type filters
+- [x] **Admin dashboard** — 6 tabs (overview, users, job-fetch logs, matching logs, email logs, tasks), stats, filters, pagination
+- [x] **API clients** — All 9 backend modules covered (auth, cv, preferences, subscriptions, jobs, matching, csv, notifications, admin)
 
-## What's Remaining (backend sections 11-14)
+## What's Remaining
 
-### Medium Priority
-- [ ] **CSV export UI** — Download button for matched jobs CSV on dashboard
-- [ ] **Notification preferences page** — Email frequency, notification channel settings
-
-### Low Priority (section 14 + polish)
-- [ ] **Admin dashboard** — User list, subscription stats, job ingestion health, queue status
+### Optional Polish
 - [ ] **Settings page** — Account settings, password change, delete account
 - [ ] **Dark mode toggle** — Tailwind dark class already supported, needs UI toggle
 - [ ] **Loading skeletons** — Replace loading spinners with skeleton components
 - [ ] **Error boundaries** — Global error handling with fallback UI
+- [ ] **Toast notifications** — Replace inline alerts with toast system
 
 ## API Client Layer
 
@@ -110,10 +116,11 @@ fetchApi<T>(endpoint, options) → Promise<T>
 | `subscriptionsApi`  | `lib/api/subscriptions.ts` | `modules/subscriptions` | listPlans, getPlan, subscribe, getMySubscription, cancel, getPayments |
 | `jobsApi`           | `lib/api/jobs.ts`     | `modules/jobs`       | list (with filters), getById, fetch (from Adzuna)                |
 | `matchingApi`       | `lib/api/matching.ts` | `modules/matching`   | run, getBatches, getBatchById, getResults, toggleShortlist, markViewed |
+| `csvApi`            | `lib/api/csv.ts`      | `modules/csv`        | generate, listExports, download, archive                         |
+| `notificationsApi`  | `lib/api/notifications.ts` | `modules/notifications` | createPreferences, getPreferences, updatePreferences, deletePreferences, listNotifications, getNotification |
 
 ### Not yet needed (backend modules not started)
-- [ ] `lib/api/csv.ts` — CSV export download
-- [ ] `lib/api/notifications.ts` — Notification preferences
+- None - all backend modules have API clients
 
 ## Conventions
 

@@ -3,20 +3,27 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, FileText, Settings, CreditCard, Briefcase, Loader2, LogOut, User } from "lucide-react";
+import { LayoutDashboard, FileText, Settings, CreditCard, Briefcase, Loader2, LogOut, User, FileSpreadsheet, Bell, Shield } from "lucide-react";
 
-const navItems = [
+const baseNavItems = [
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/jobs", label: "Job Matches", icon: Briefcase },
+    { href: "/exports", label: "CSV Exports", icon: FileSpreadsheet },
+    { href: "/notifications", label: "Notifications", icon: Bell },
     { href: "/cv", label: "My CV", icon: FileText },
     { href: "/preferences", label: "Preferences", icon: Settings },
     { href: "/subscription", label: "Subscription", icon: CreditCard },
 ];
 
+const adminNavItem = { href: "/admin", label: "Admin", icon: Shield };
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     const { user, isLoading, logout } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
+
+    // Add admin link if user is admin
+    const navItems = user?.role === "admin" ? [...baseNavItems, adminNavItem] : baseNavItems;
 
     const handleLogout = () => {
         logout();
