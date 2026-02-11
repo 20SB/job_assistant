@@ -44,16 +44,16 @@ test/
 
 ## Mocking Strategy
 
-| Dependency | How | Where |
-|------------|-----|-------|
-| `config/env.js` | Global `vi.mock` with test defaults | `vitest.setup.ts` |
-| `lib/logger.js` | Global `vi.mock`, all methods `vi.fn()` | `vitest.setup.ts` |
-| `db` (Drizzle) | Module-level `vi.mock`, chainable helpers | Per-file + `utils/mocks/db.mock.ts` |
-| `bcrypt` | `vi.mock("bcrypt")` per-file | Service tests that hash/compare |
-| `jsonwebtoken` | `vi.mock("jsonwebtoken")` per-file | Auth middleware + user service |
-| `global.fetch` | `vi.spyOn(globalThis, "fetch")` | Adzuna API client tests |
-| Cross-module services | `vi.mock()` the imported module | E.g., notifications mocked in subscriptions tests |
-| Express req/res/next | Factory functions | `utils/mocks/request.mock.ts` |
+| Dependency            | How                                       | Where                                             |
+| --------------------- | ----------------------------------------- | ------------------------------------------------- |
+| `config/env.js`       | Global `vi.mock` with test defaults       | `vitest.setup.ts`                                 |
+| `lib/logger.js`       | Global `vi.mock`, all methods `vi.fn()`   | `vitest.setup.ts`                                 |
+| `db` (Drizzle)        | Module-level `vi.mock`, chainable helpers | Per-file + `utils/mocks/db.mock.ts`               |
+| `bcrypt`              | `vi.mock("bcrypt")` per-file              | Service tests that hash/compare                   |
+| `jsonwebtoken`        | `vi.mock("jsonwebtoken")` per-file        | Auth middleware + user service                    |
+| `global.fetch`        | `vi.spyOn(globalThis, "fetch")`           | Adzuna API client tests                           |
+| Cross-module services | `vi.mock()` the imported module           | E.g., notifications mocked in subscriptions tests |
+| Express req/res/next  | Factory functions                         | `utils/mocks/request.mock.ts`                     |
 
 ## Writing New Tests
 

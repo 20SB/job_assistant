@@ -18,7 +18,12 @@
       "Bash(for dir in admin auth cv dashboard exports jobs notifications preferences settings subscription)",
       "Bash(do rm -rf \"$dir/utils\")",
       "Bash(done)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(dir:*)",
+      "Bash(npm install:*)",
+      "Bash(npx vitest run:*)",
+      "Bash(node --version:*)",
+      "Bash(npm:*)"
     ]
   }
 }
