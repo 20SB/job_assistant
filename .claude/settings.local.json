@@ -14,7 +14,10 @@
       "Bash(\"C:\\\\work_area\\\\codes\\\\own\\\\job_assistant\\\\apps\\\\frontend\\\\src\\\\ui\\\\README.md\" << 'EOF'\n# UI Design System\n\nPure, reusable UI components with no business logic.\n\n## Usage\n\n```typescript\nimport { Button, Card, Input, Badge, Label, Skeleton } from '@/ui';\n```\n\n## Available Components\n\n- `button` - Button with variants \\(default, destructive, outline, etc.\\)\n- `card` - Card container with Header, Content, Footer\n- `input` - Form input field\n- `label` - Form label\n- `badge` - Status badge with variants\n- `skeleton` - Loading skeleton\n\n## Principles\n\n- **Pure UI** - No API calls, no business logic\n- **Prop-driven** - Props in, UI out\n- **Accessible** - Built on Radix UI\n- **Themeable** - Light/dark mode support\nEOF)",
       "Bash(\"C:\\\\work_area\\\\codes\\\\own\\\\job_assistant\\\\apps\\\\frontend\\\\src\\\\ui\\\\index.ts\" << 'EOF'\n// UI Components - Design System\nexport { Button, buttonVariants } from './button';\nexport { Badge, badgeVariants } from './badge';\nexport { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';\nexport { Input } from './input';\nexport { Label } from './label';\nexport { Skeleton } from './skeleton';\nEOF)",
       "Bash(npm run lint:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(for dir in admin auth cv dashboard exports jobs notifications preferences settings subscription)",
+      "Bash(do rm -rf \"$dir/utils\")",
+      "Bash(done)"
     ]
   }
 }
