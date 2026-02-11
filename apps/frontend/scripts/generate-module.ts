@@ -96,7 +96,7 @@ function generateModule(options: ModuleOptions): void {
   });
 
   // Generate files
-  generateIndexFile(modulePath, pascalName, camelName, withStore);
+  generateIndexFile(modulePath, pascalName, camelName, withStore ?? false);
   generateReadme(modulePath, name, pascalName);
   generateClaudeMd(modulePath, name, pascalName);
   generateTypesFile(modulePath, pascalName, camelName);
