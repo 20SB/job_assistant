@@ -22,6 +22,8 @@ const envSchema = z.object({
     ADZUNA_APP_KEY: z.string().optional(),
     ADZUNA_BASE_URL: z.string().url().default("https://api.adzuna.com/v1/api"),
     ADZUNA_COUNTRY: z.string().default("in"),
+    // Task processor
+    WORKER_POLL_INTERVAL_MS: z.coerce.number().default(5000),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -12,6 +12,8 @@ import jobsRouter from "./modules/jobs/jobs.routes.js";
 import matchingRouter from "./modules/matching/matching.routes.js";
 import csvRouter from "./modules/csv/csv.routes.js";
 import notificationsRouter from "./modules/notifications/notifications.routes.js";
+import tasksRouter from "./modules/tasks/tasks.routes.js";
+import { startTaskProcessor } from "./lib/task-processor.js";
 import cors from "cors";
 
 // Side-effect import: establishes DB pool connection on startup
@@ -37,6 +39,7 @@ app.use("/api/jobs", jobsRouter);
 app.use("/api/matching", matchingRouter);
 app.use("/api/csv", csvRouter);
 app.use("/api/notifications", notificationsRouter);
+app.use("/api/tasks", tasksRouter);
 
 // Global error handler (must be AFTER all routes)
 app.use(errorHandler);
@@ -44,4 +47,5 @@ app.use(errorHandler);
 // Start server
 app.listen(env.PORT, () => {
     logger.info(`Server running at http://localhost:${env.PORT}`);
+    startTaskProcessor(env.WORKER_POLL_INTERVAL_MS);
 });

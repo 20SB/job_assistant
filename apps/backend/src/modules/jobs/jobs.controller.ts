@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import * as jobsService from "./jobs.service.js";
+import * as tasksService from "../tasks/tasks.service.js";
 import { listJobsSchema } from "./jobs.schemas.js";
 
 export async function listJobs(req: Request, res: Response): Promise<void> {
@@ -14,8 +15,11 @@ export async function getJob(req: Request, res: Response): Promise<void> {
 }
 
 export async function triggerFetch(req: Request, res: Response): Promise<void> {
-  const result = await jobsService.triggerFetch(req.body);
-  res.status(200).json({ status: "success", data: result });
+  const task = await tasksService.enqueue("job_fetch", req.body);
+  res.status(202).json({
+    status: "success",
+    data: { taskId: task.id, message: "Job fetch queued" },
+  });
 }
 
 export async function fetchLogs(_req: Request, res: Response): Promise<void> {

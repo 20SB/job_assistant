@@ -26,6 +26,8 @@ src/
     error-handler.ts    → Global Express error middleware
     validate.ts         → Zod validation middleware factory: `validate(schema)`
     email.ts            → Nodemailer transporter + email templates
+    task-processor.ts   → DB-polling task worker engine (claim → execute → update)
+    workers/            → Worker wrappers: job-fetch, matching, csv-generation, email-delivery
   middleware/
     auth.ts                 → JWT `authenticate` middleware, augments `req.user`
     require-subscription.ts → Feature gating: `requireSubscription("starter")` etc.
@@ -36,6 +38,7 @@ src/
     subscriptions/      → HLD §8: Plans, Subscriptions, Payments
     jobs/               → HLD §9: Job Ingestion (Adzuna API)
     matching/           → HLD §10: Job Matching Engine
+    tasks/              → HLD §11: Async Processing & Queues
 ```
 
 ## Module Pattern (4 files)
@@ -143,6 +146,7 @@ Defined and validated in `config/env.ts`:
 | `ADZUNA_APP_KEY` | No | — | Adzuna API key |
 | `ADZUNA_BASE_URL` | No | `https://api.adzuna.com/v1/api` | API base URL |
 | `ADZUNA_COUNTRY` | No | `in` | Country code for search |
+| `WORKER_POLL_INTERVAL_MS` | No | `5000` | Task processor polling interval |
 
 ## Local Development
 

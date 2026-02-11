@@ -1,10 +1,17 @@
 import type { Request, Response } from "express";
 import * as matchingService from "./matching.service.js";
+import * as tasksService from "../tasks/tasks.service.js";
 import { listMatchesSchema } from "./matching.schemas.js";
 
 export async function runMatching(req: Request, res: Response): Promise<void> {
-  const result = await matchingService.runMatching(req.user!.userId, req.body.trigger ?? "scheduled");
-  res.status(200).json({ status: "success", data: result });
+  const task = await tasksService.enqueue("matching", {
+    userId: req.user!.userId,
+    trigger: req.body.trigger ?? "scheduled",
+  });
+  res.status(202).json({
+    status: "success",
+    data: { taskId: task.id, message: "Matching queued" },
+  });
 }
 
 export async function listBatches(req: Request, res: Response): Promise<void> {
