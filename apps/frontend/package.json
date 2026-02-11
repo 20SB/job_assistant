@@ -10,7 +10,10 @@
     "generate:module": "tsx scripts/generate-module.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed --project=chromium"
+    "test:e2e:headed": "playwright test --headed --project=chromium",
+    "test:cy": "cypress run",
+    "test:cy:open": "cypress open",
+    "test:cy:headed": "cypress run --browser chrome --headed"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -32,6 +35,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cypress": "^15.10.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
