@@ -11,6 +11,8 @@
         "test": "vitest run",
         "test:watch": "vitest",
         "test:coverage": "vitest run --coverage",
+        "test:integration": "vitest run --config test/vitest.integration.config.ts",
+        "test:integration:watch": "vitest --config test/vitest.integration.config.ts",
         "generate": "drizzle-kit generate",
         "migrate": "drizzle-kit migrate"
     },
@@ -39,9 +41,11 @@
         "@types/node": "^25.2.2",
         "@types/nodemailer": "^7.0.9",
         "@types/pg": "^8.16.0",
+        "@types/supertest": "^6.0.3",
         "@vitest/coverage-v8": "^4.0.18",
         "drizzle-kit": "^0.31.8",
         "nodemon": "^3.1.11",
+        "supertest": "^7.2.2",
         "tsx": "^4.21.0",
         "typescript": "^5.9.3",
         "vitest": "^4.0.18"

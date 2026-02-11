@@ -4,6 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     include: ["test/**/*.test.ts"],
+    exclude: ["test/integration/**"],
     setupFiles: ["test/vitest.setup.ts"],
     coverage: {
       provider: "v8",

@@ -20,9 +20,18 @@ export function validate(schema: ZodSchema, target: ValidateTarget = "body") {
     if (target === "body") {
       req.body = result.data;
     } else if (target === "query") {
-      req.query = result.data as any;
+      // Express 5 makes req.query a read-only getter — use defineProperty to override
+      Object.defineProperty(req, "query", {
+        value: result.data,
+        writable: true,
+        configurable: true,
+      });
     } else {
-      req.params = result.data as any;
+      Object.defineProperty(req, "params", {
+        value: result.data,
+        writable: true,
+        configurable: true,
+      });
     }
     next();
   };
