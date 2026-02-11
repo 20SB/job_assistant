@@ -10,9 +10,6 @@ export { LoginPage } from './components/LoginPage';
 export { SignupPage } from './components/SignupPage';
 export { VerifyPage } from './components/VerifyPage';
 
-// API Client
-export { authApi } from './api/auth.api';
-
 // Types (re-export all)
 export type * from './types';
 

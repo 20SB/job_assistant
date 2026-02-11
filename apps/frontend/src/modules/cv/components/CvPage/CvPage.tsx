@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import { cvApi } from '../../api/cv.api';
+import { cvApi } from '@/lib/api/cv';
 import type { CvData, View } from '../../types';
 import { ApiError } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';

@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(npx tsc:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run generate:module:*)",
+      "Bash(wc:*)",
+      "Bash(echo:*)",
+      "Bash(\"C:\\\\work_area\\\\codes\\\\own\\\\job_assistant\\\\apps\\\\frontend\\\\src\\\\app\\\\\\(dashboard\\)\\\\dashboard\\\\page.tsx\")",
+      "Bash(\"C:\\\\work_area\\\\codes\\\\own\\\\job_assistant\\\\apps\\\\frontend\\\\src\\\\core\\\\README.md\" << 'EOF'\n# Core Infrastructure\n\nFramework-level infrastructure that all features depend on.\n\n## Structure\n\n- `api/` - Base API client \\(`fetchApi`, `ApiError`\\)\n- `auth/` - Authentication context and provider\n- `theme/` - Theme management and toggle\n- `error-boundary/` - Global error handling\n\n## Usage\n\n```typescript\n// API client\nimport { fetchApi, ApiError } from '@/core/api';\n\n// Auth\nimport { useAuth, AuthProvider } from '@/core/auth';\n\n// Theme\nimport { ThemeToggle } from '@/core/theme';\n\n// Error boundary\nimport { ErrorBoundary } from '@/core/error-boundary';\n```\n\n## Dependency Rules\n\n- ✅ Can import from: `ui/`\n- ❌ Cannot import from: `modules/`, `shared/`\nEOF)",
+      "Bash(\"C:\\\\work_area\\\\codes\\\\own\\\\job_assistant\\\\apps\\\\frontend\\\\src\\\\ui\\\\README.md\" << 'EOF'\n# UI Design System\n\nPure, reusable UI components with no business logic.\n\n## Components\n\nAll components are exported from `@/ui`:\n\n```typescript\nimport { Button, Card, Input, Badge, Label } from '@/ui';\n```\n\n## Principles\n\n- **Pure UI** - No API calls, no auth checks, no business logic\n- **Prop-driven** - Accept props, render UI, call callbacks\n- **Accessible** - Built on Radix UI primitives\n- **Themeable** - Support light/dark mode via Tailwind\n\n## Dependency Rules\n\n- ✅ Can import from: **Nothing** \\(pure UI layer\\)\n- ❌ Cannot import from: `modules/`, `shared/`, `core/`\nEOF)",
+      "Bash(ls:*)",
+      "Bash(\"C:\\\\work_area\\\\codes\\\\own\\\\job_assistant\\\\apps\\\\frontend\\\\src\\\\ui\\\\README.md\" << 'EOF'\n# UI Design System\n\nPure, reusable UI components with no business logic.\n\n## Usage\n\n```typescript\nimport { Button, Card, Input, Badge, Label, Skeleton } from '@/ui';\n```\n\n## Available Components\n\n- `button` - Button with variants \\(default, destructive, outline, etc.\\)\n- `card` - Card container with Header, Content, Footer\n- `input` - Form input field\n- `label` - Form label\n- `badge` - Status badge with variants\n- `skeleton` - Loading skeleton\n\n## Principles\n\n- **Pure UI** - No API calls, no business logic\n- **Prop-driven** - Props in, UI out\n- **Accessible** - Built on Radix UI\n- **Themeable** - Light/dark mode support\nEOF)",
+      "Bash(\"C:\\\\work_area\\\\codes\\\\own\\\\job_assistant\\\\apps\\\\frontend\\\\src\\\\ui\\\\index.ts\" << 'EOF'\n// UI Components - Design System\nexport { Button, buttonVariants } from './button';\nexport { Badge, badgeVariants } from './badge';\nexport { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './card';\nexport { Input } from './input';\nexport { Label } from './label';\nexport { Skeleton } from './skeleton';\nEOF)",
+      "Bash(npm run lint:*)",
+      "Bash(git push:*)"
     ]
   }
 }

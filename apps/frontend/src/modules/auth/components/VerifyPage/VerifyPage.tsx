@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Mail, CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import { authApi } from '../../api/auth.api';
+import { authApi } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 
 function VerifyContent() {

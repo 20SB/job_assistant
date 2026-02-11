@@ -8,9 +8,6 @@
 // Components
 export { CvPage } from './components/CvPage';
 
-// API Client
-export { cvApi } from './api/cv.api';
-
 // Types (re-export all)
 export type * from './types';
 
