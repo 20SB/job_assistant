@@ -13,6 +13,7 @@ import matchingRouter from "./modules/matching/matching.routes.js";
 import csvRouter from "./modules/csv/csv.routes.js";
 import notificationsRouter from "./modules/notifications/notifications.routes.js";
 import tasksRouter from "./modules/tasks/tasks.routes.js";
+import adminRouter from "./modules/admin/admin.routes.js";
 import { startTaskProcessor } from "./lib/task-processor.js";
 import cors from "cors";
 
@@ -40,6 +41,7 @@ app.use("/api/matching", matchingRouter);
 app.use("/api/csv", csvRouter);
 app.use("/api/notifications", notificationsRouter);
 app.use("/api/tasks", tasksRouter);
+app.use("/api/admin", adminRouter);
 
 // Global error handler (must be AFTER all routes)
 app.use(errorHandler);

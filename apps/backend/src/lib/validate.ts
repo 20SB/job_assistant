@@ -2,9 +2,12 @@ import type { Request, Response, NextFunction } from "express";
 import { type ZodIssue, ZodError, type ZodSchema } from "zod";
 import { AppError } from "./errors.js";
 
-export function validate(schema: ZodSchema) {
+type ValidateTarget = "body" | "query" | "params";
+
+export function validate(schema: ZodSchema, target: ValidateTarget = "body") {
   return (req: Request, _res: Response, next: NextFunction): void => {
-    const result = schema.safeParse(req.body);
+    const data = target === "body" ? req.body : target === "query" ? req.query : req.params;
+    const result = schema.safeParse(data);
 
     if (!result.success) {
       const zodError = result.error as ZodError;
@@ -14,7 +17,13 @@ export function validate(schema: ZodSchema) {
       throw new AppError(messages, 400);
     }
 
-    req.body = result.data;
+    if (target === "body") {
+      req.body = result.data;
+    } else if (target === "query") {
+      req.query = result.data as any;
+    } else {
+      req.params = result.data as any;
+    }
     next();
   };
 }

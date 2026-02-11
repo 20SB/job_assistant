@@ -27,7 +27,7 @@ docs/
 | 11| Async Processing & Queues      | Done         | `modules/tasks/` + `lib/task-processor.ts` + `lib/workers/` |
 | 12| CSV Generation                 | Done         | `modules/csv/` + email attachment support |
 | 13| Notification System            | Done         | `modules/notifications/` + email delivery logging |
-| 14| Admin & Observability          | Not started  | schema ready: `jobFetchLogs`, `matchingLogs`, `emailDeliveryLogs` |
+| 14| Admin & Observability          | Done         | `modules/admin/` + log viewers + stats dashboard |
 
 ## Key Conventions (all code)
 
